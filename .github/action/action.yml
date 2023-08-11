@@ -1,0 +1,6 @@
+name: symlinks action
+runs:
+  using: composite
+  steps:
+    - run: echo hello symlinks
+      shell: /bin/sh {0}
