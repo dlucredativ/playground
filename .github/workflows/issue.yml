@@ -1,0 +1,20 @@
+on:
+  push:
+
+jobs:
+  one:
+    runs-on: ubuntu-latest
+    outputs:
+      DB_CONNECTION_URL: ${{ steps.set_my_outputs.outputs.DB_CONNECTION_URL }}
+    steps:
+      - name: Setting Outputs
+        id: set_my_outputs
+        run: |
+            echo "DB_CONNECTION_URL=25" >> $GITHUB_OUTPUT
+
+  two:
+    needs: one
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "All outputs: ${{ join(needs.one.outputs.*, '-') }}"
