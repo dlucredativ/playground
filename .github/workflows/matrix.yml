@@ -1,0 +1,36 @@
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  one:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        param: ["ok", "fail", "nofail"]
+    outputs:
+      ok: ${{ steps.result.outputs.ok }}
+      fail: ${{ steps.result.outputs.fail }}
+      nofail: ${{ steps.result.outputs.fail }}
+    steps:
+      - run: >
+          [ "${{ matrix.param }}" != "fail" ]
+      - run: sleep 4
+      - id: result
+        run: >
+          echo "${{ matrix.param }}=done" >> $GITHUB_OUTPUT
+
+  two:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    needs: ["one"]
+    strategy:
+      matrix:
+        param: ["ok", "fail", "nofail"]
+    steps:
+      - run: echo "${{ matrix.param }} ${{ needs.one.outputs.result }}"
+        if: >
+          (matrix.param == 'ok' && needs.one.outputs.ok == 'done') ||
+          (matrix.param == 'fail' && needs.one.outputs.fail == 'done') ||
+          (matrix.param == 'nofail' && needs.one.outputs.nofail == 'done')
